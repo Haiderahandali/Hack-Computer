@@ -1,0 +1,51 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/03/a/PC.hdl
+
+/**
+ * A 16-bit counter with load and reset control bits.
+ * if      (reset[t] == 1) out[t+1] = 0
+ * else if (load[t] == 1)  out[t+1] = in[t]
+ * else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
+ * else                    out[t+1] = out[t]
+ */
+
+CHIP PC {
+    IN in[16],load,inc,reset;
+    OUT out[16];
+
+    PARTS:
+
+    //Change the old value, if any of those flags is on
+    Or(a = reset, b = load , out = or1);
+    Or(a = or1, b = inc, out = EnableNewValue); 
+    Inc16(in = R1, out = IncrementedValue);
+
+    Mux16(a = IncrementedValue, b = in, sel = load, out = m1);
+    Mux16(a = m1, b = false, sel = reset, out = m2);
+
+    Register(in = m2, load = EnableNewValue, out = R1, out = out);
+    
+   
+    
+}
+
+    /**  This is the counter, 
+    * but the 2 multiplexer is just for selecting either input value, or 0 
+    *
+    * Inc16(in = R1, out = IncrementedValue);
+    * Register(in = m2, load = EnableNewValue, out = R1, out = out);
+    * 
+    * also another solution found on github 
+    * ------------------------------------
+    *
+    * ------      Inc16(in=out5,out=out1);
+    * ------      Mux16(a=out5,b=out1,sel=inc,out=out2);
+    * ------      Mux16(a=out2,b=in,sel=load,out=out3);
+    * ------      Mux16(a=out3,b=false,sel=reset,out=out4);
+    * ------      Register(in=out4,load=true,out=out5,out=out);
+    *
+    * -------------------------------------------------
+    * reference https://github.com/xctom/Nand2Tetris/blob/master/projects/03/PC.hdl
+    */ 

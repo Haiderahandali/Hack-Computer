@@ -1,0 +1,79 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Or16.hdl
+
+/**
+ * 16-bit bitwise Or:
+ * for i = 0..15 out[i] = (a[i] or b[i])
+ */
+
+CHIP Or16 {
+    IN a[16], b[16];
+    OUT out[16];
+
+    PARTS:
+    Not(in = a[0], out = aNot0);
+    Not(in = b[0], out = bNot0);
+    Nand(a = aNot0, b = bNot0, out = out[0]);
+
+    Not(in = a[1], out = aNot1);
+    Not(in = b[1], out = bNot1);
+    Nand(a = aNot1, b = bNot1, out = out[1]);
+
+    Not(in = a[2], out = aNot2);
+    Not(in = b[2], out = bNot2);
+    Nand(a = aNot2, b = bNot2, out = out[2]);
+
+    Not(in = a[3], out = aNot3);
+    Not(in = b[3], out = bNot3);
+    Nand(a = aNot3, b = bNot3, out = out[3]);
+
+    Not(in = a[4], out = aNot4);
+    Not(in = b[4], out = bNot4);
+    Nand(a = aNot4, b = bNot4, out = out[4]);
+
+    Not(in = a[5], out = aNot5);
+    Not(in = b[5], out = bNot5);
+    Nand(a = aNot5, b = bNot5, out = out[5]);
+
+    Not(in = a[6], out = aNot6);
+    Not(in = b[6], out = bNot6);
+    Nand(a = aNot6, b = bNot6, out = out[6]);
+
+    Not(in = a[7], out = aNot7);
+    Not(in = b[7], out = bNot7);
+    Nand(a = aNot7, b = bNot7, out = out[7]);
+
+    Not(in = a[8], out = aNot8);
+    Not(in = b[8], out = bNot8);
+    Nand(a = aNot8, b = bNot8, out = out[8]);
+
+    Not(in = a[9], out = aNot9);
+    Not(in = b[9], out = bNot9);
+    Nand(a = aNot9, b = bNot9, out = out[9]);
+
+    Not(in = a[10], out = aNot10);
+    Not(in = b[10], out = bNot10);
+    Nand(a = aNot10, b = bNot10, out = out[10]);
+
+    Not(in = a[11], out = aNot11);
+    Not(in = b[11], out = bNot11);
+    Nand(a = aNot11, b = bNot11, out = out[11]);
+
+    Not(in = a[12], out = aNot12);
+    Not(in = b[12], out = bNot12);
+    Nand(a = aNot12, b = bNot12, out = out[12]);
+
+    Not(in = a[13], out = aNot13);
+    Not(in = b[13], out = bNot13);
+    Nand(a = aNot13, b = bNot13, out = out[13]);
+
+    Not(in = a[14], out = aNot14);
+    Not(in = b[14], out = bNot14);
+    Nand(a = aNot14, b = bNot14, out = out[14]);
+
+    Not(in = a[15], out = aNot15);
+    Not(in = b[15], out = bNot15);
+    Nand(a = aNot15, b = bNot15, out = out[15]);
+}
