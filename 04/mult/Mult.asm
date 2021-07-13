@@ -49,3 +49,6 @@ M = D
 (END)
 @END
 0;JMP
+
+
+//------ Another Idea is to go directly to @END instead of @STOP, and assign the sum there, //saving few lines of code

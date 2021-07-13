@@ -32,11 +32,13 @@ M = 0
 //start printing white pixels
 @KBD
 D = M
-@PRINT_WHITE
+@PRINT_BLACK
 D; JNE
 
+
+
 //--------------------- Printing Black -----------------------------//
-(PRINT_BLACK)
+(PRINT_WHITE)
 //Reset the Wcount to 0
 @Wcount
 M = 0
@@ -64,9 +66,8 @@ M = M + 1
 @START
 0;JMP
 
-
-//--------------------- Printing White -----------------------------//
-(PRINT_WHITE)
+//--------------------- Printing BLACK -----------------------------//
+(PRINT_BLACK)
 
 //if I am at the last pixel, do nothing
 @Size
@@ -94,3 +95,5 @@ M = M + 1
 
 @START
 0;JMP
+
+
