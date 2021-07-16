@@ -1,10 +1,10 @@
 #include "parse.h"
 
+static bool gHasMoreLines;
 static int gInstructionNo;
 static char gBuffer[MAX_INSTRUCTION_SIZE];
-static instruction_t* gInstructions;
 
-bool gHasMoreLines;
+static instruction_t* gInstructions;
 
 file_pointer_t InitParse(char const* pathToFile)
 {
@@ -87,7 +87,7 @@ void PushInstruction(char const* instructionLine)
     {
         if (stringSize >= 16)
         {
-            printf("Insturction String size is above maximum (16 characters), skipping to next instruction ....\n");
+            printf("instruction String size is above maximum (16 characters), skipping to next instruction ....\n");
             return;
         }
         gInstructions[gInstructionNo].lineSize   = stringSize;
@@ -135,9 +135,9 @@ void close(file_pointer_t openedFile)
     fclose(openedFile);
     free(gInstructions);
 }
-int InstructionsCount()
+int GetInstructionCount()
 {
-    return gInstructionNo + 1;
+    return gInstructionNo;
 }
 void PrintInstruction(instruction_t* instruction)
 {
@@ -178,6 +178,7 @@ instruction_t* GetNextInstruction()
     static int i = 0;
     if (i < gInstructionNo)
     {
+
         return &gInstructions[i++];
     }
     else
@@ -193,5 +194,186 @@ void PrintInstructions()
     for (int i = 0; i < gInstructionNo; ++i)
     {
         PrintInstruction(GetNextInstruction());
+    }
+}
+
+void Symbol(instruction_t* currentInstruction, char* temp)
+{
+    switch (currentInstruction->type)
+    {
+        case A_Insturction:
+        {
+
+            strcpy(temp, currentInstruction->instructionString + 1);
+
+            printf("%s\n", temp);
+            break;
+        }
+
+        case L_Insturction:
+        {
+            unsigned long symbolSize = currentInstruction->lineSize - 2;
+            strncpy(temp, currentInstruction->instructionString + 1, symbolSize);
+            temp[symbolSize] = '\0';
+            printf("%s\n", temp);
+            break;
+        }
+        case C_Insturction:
+        {
+            // printf("instruction not a symbol instruction\n");
+            temp[0] = '\0';
+            break;
+        }
+        default:
+        {
+            printf("error not a valid label instruction\n");
+            break;
+        }
+    }
+}
+
+void Dest(instruction_t* currentInstruction)
+{
+    switch (currentInstruction->type)
+    {
+        case A_Insturction:
+        case L_Insturction:
+        {
+
+            // printf("A or L instruction don't have dest \n");
+            // temp[0] = '\0';
+            break;
+        }
+
+        case C_Insturction:
+        {
+            char* insStr = currentInstruction->instructionString;
+            char* eqSign = strchr(insStr, '=');
+            if (eqSign != NULL)
+            {
+                unsigned long stringSize = eqSign - insStr;
+                char temp[MAX_INSTRUCTION_SIZE];
+                strncpy(temp, insStr, stringSize);
+                temp[stringSize] = '\0';
+                printf("Dest: %s\n", temp);
+            }
+            break;
+        }
+        default:
+        {
+            printf("error not a valid dest instruction\n");
+            break;
+        }
+    }
+}
+void Comp(instruction_t* currentInstruction)
+{
+
+    switch (currentInstruction->type)
+    {
+        case A_Insturction:
+        case L_Insturction:
+        {
+
+            // printf("A or L instruction don't have comp \n");
+            // temp[0] = '\0';
+            break;
+        }
+
+        case C_Insturction:
+        {
+            char* insStr = currentInstruction->instructionString;
+            char* eqSign = strchr(insStr, '=');
+            if (eqSign != NULL)
+            {
+                char* colSign = strchr(eqSign, ';');
+                if (colSign != NULL)
+                {
+                    unsigned long stringSize = colSign - eqSign;
+                    char temp[MAX_INSTRUCTION_SIZE];
+                    strncpy(temp, eqSign, stringSize);
+                    temp[stringSize] = '\0';
+
+                    printf("%s\n", temp);
+                }
+                else
+                {
+
+                    int insSize = strlen(insStr);
+
+                    unsigned long stringSize = &insStr[insSize - 1] - eqSign;
+                    char temp[MAX_INSTRUCTION_SIZE];
+                    strncpy(temp, eqSign + 1, stringSize);
+                    temp[stringSize] = '\0';
+                    printf("%s\n", temp);
+                }
+            }
+            else
+            {
+                char* colSign = strchr(insStr, ';');
+                if (colSign != NULL)
+                {
+                    int stringSize = colSign - insStr;
+                    char temp[MAX_INSTRUCTION_SIZE];
+                    strncpy(temp, insStr, stringSize);
+                    temp[stringSize] = '\0';
+                    printf("%s\n", temp);
+                }
+                else
+                {
+                    printf("error, expected a jump expression\n");
+                }
+            }
+            break;
+        }
+        default:
+        {
+            printf("error not a valid comp instruction\n");
+            break;
+        }
+    }
+}
+
+void Jump(instruction_t* currentInstruction)
+{
+    switch (currentInstruction->type)
+    {
+        case A_Insturction:
+        case L_Insturction:
+        {
+
+            // printf("A or L instruction don't have jump \n");
+            // temp[0] = '\0';
+            break;
+        }
+
+        case C_Insturction:
+        {
+            char* insStr  = currentInstruction->instructionString;
+            char* colSign = strchr(insStr, ';');
+            if (colSign != NULL)
+            {
+                int endStrPos = strlen(insStr) - 1;
+                char temp[MAX_INSTRUCTION_SIZE];
+                int stringSize = &insStr[endStrPos] - colSign;
+                strncpy(temp, colSign + 1, stringSize);
+                temp[stringSize] = '\0';
+
+                if (stringSize != 3)
+                {
+                    printf("error expected 3 character jump expression");
+                }
+                else
+                {
+                    printf("%s\n", temp);
+                }
+            }
+            break;
+        }
+        default:
+        {
+            printf("error not a valid jump instruction\n");
+            break;
+        }
     }
 }

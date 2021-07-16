@@ -1,5 +1,6 @@
 #ifndef PRASE_H
 #define PRASE_H
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -27,15 +28,19 @@ typedef struct _instruction
 
 } instruction_t;
 
-extern bool gHasMoreLines;
-
 file_pointer_t InitParse(char const* path_to_file);
 bool CurrentOpenedFileHasMoreLines(void);
 char const* getLineFromStream(file_pointer_t openedFile);
 instruction_t* GetNextInstruction();
+int GetInstructionCount();
 
 void close(file_pointer_t openedFile);
 void PushInstruction(char const* instruction);
 void PrintInstruction(instruction_t* instruction);
 void PrintInstructions(void);
+
+void Symbol(instruction_t* currentInstruction, char* stringBuffer);
+void Dest(instruction_t* currentInstruction);
+void Comp(instruction_t* currentInstruction);
+void Jump(instruction_t* currentInstruction);
 #endif

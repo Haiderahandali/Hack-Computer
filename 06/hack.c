@@ -13,7 +13,18 @@ int main(int argc, char* argv[])
         char const* currentLine = getLineFromStream(currentOpenFile);
         PushInstruction(currentLine);
     }
-    PrintInstructions();
+
+    int count = GetInstructionCount();
+    char stringBuffer[MAX_INSTRUCTION_SIZE];
+    for (int i = 0; i < count; ++i)
+
+    {
+        instruction_t* currentIns = GetNextInstruction();
+        Symbol(currentIns, stringBuffer);
+        Dest(currentIns);
+        Comp(currentIns);
+        Jump(currentIns);
+    }
 
     close(currentOpenFile);
 }
