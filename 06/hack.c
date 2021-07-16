@@ -11,6 +11,9 @@ int main(int argc, char* argv[])
     while (CurrentOpenedFileHasMoreLines())
     {
         char const* currentLine = getLineFromStream(currentOpenFile);
-        printf("%s\n", currentLine);
+        PushInstruction(currentLine);
     }
+    PrintInstructions();
+
+    close(currentOpenFile);
 }

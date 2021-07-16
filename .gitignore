@@ -1,2 +1,7 @@
 /demo
-/.DS_Store
+**/.DS_Store
+**/a.out
+**/.idea
+**/cmake-build-debug
+**/a.out.dSYM
+**/build

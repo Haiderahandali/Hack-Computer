@@ -1,13 +1,17 @@
 #include "parse.h"
 
-bool gHasMoreLines;
+static int gInstructionNo;
+static char gBuffer[MAX_INSTRUCTION_SIZE];
+static instruction_t* gInstructions;
 
-static char buffer[MAX_INSTRUCTION_SIZE];
+bool gHasMoreLines;
 
 file_pointer_t InitParse(char const* pathToFile)
 {
 
-    gHasMoreLines = true;
+    gInstructionNo = 0;
+    gHasMoreLines  = true;
+    gInstructions  = (instruction_t*)malloc(sizeof(instruction_t) * MAX_LINES);
     return fopen(pathToFile, "r");
 }
 
@@ -19,7 +23,8 @@ char const* getLineFromStream(file_pointer_t openedFile)
     bool endOfLine = false;
     while (!endOfLine)
     {
-        char c = fgetc(openedFile);
+
+        int c = fgetc(openedFile);
         switch (c)
         {
             case ' ':
@@ -43,7 +48,7 @@ char const* getLineFromStream(file_pointer_t openedFile)
             case '/':
             {
 
-                char secondSlash = fgetc(openedFile);
+                int secondSlash = fgetc(openedFile);
                 if (secondSlash != '/')
                 {
                     printf("invalid comment expected next slash\n");
@@ -52,7 +57,7 @@ char const* getLineFromStream(file_pointer_t openedFile)
                 }
                 while (true)
                 {
-                    char ch = fgetc(openedFile);
+                    int ch = fgetc(openedFile);
                     if (ch == EOF || ch == '\n')
                     {
                         endOfLine = true;
@@ -64,67 +69,129 @@ char const* getLineFromStream(file_pointer_t openedFile)
 
             default:
             {
-                buffer[i] = c;
+                gBuffer[i] = (char)c;
                 ++i;
                 break;
             }
         }
     }
-    buffer[i] = '\0';
-    return buffer;
+    gBuffer[i] = '\0';
+    return gBuffer;
 }
 
-char advance(file_pointer_t openedFile)
+void PushInstruction(char const* instructionLine)
 {
-    char c = fgetc(openedFile);
-    switch (c)
+    ulong_t stringSize = strlen(instructionLine);
+    static int lineNo  = 0;
+    if (stringSize > 0) //if not am empty instruction do nothing
     {
-
-        case EOF:
+        if (stringSize >= 16)
         {
-            gHasMoreLines = false;
-            c             = false;
-            break;
+            printf("Insturction String size is above maximum (16 characters), skipping to next instruction ....\n");
+            return;
         }
+        gInstructions[gInstructionNo].lineSize   = stringSize;
+        gInstructions[gInstructionNo].lineNumber = ++lineNo;
+        strcpy(gInstructions[gInstructionNo].instructionString, instructionLine);
 
-        case '\n':
-        case ' ':
+        char firstCh = instructionLine[0];
+        switch (firstCh)
         {
-            c = advance(openedFile);
-            break;
-        }
-
-        //handing comments
-        case '/':
-        {
-            if (fgetc(openedFile) == '/')
+            case '@':
             {
-                while (true)
+                gInstructions[gInstructionNo].type = A_Insturction;
+                break;
+            }
+            case '(':
+            {
+                if (instructionLine[stringSize - 1] != ')')
                 {
-                    char ch = fgetc(openedFile);
-                    if ((ch == '\n') || (ch == EOF))
-                    {
-                        c = advance(openedFile);
-                        break;
-                    }
+                    printf("Error expected a matching parenthesis for '(' \n");
                 }
+                else
+                {
+                    gInstructions[gInstructionNo].type = L_Insturction;
+                }
+                break;
             }
-            else
+            default:
             {
-                printf("Error expected a comment but couldn't found the second slash\n");
+                gInstructions[gInstructionNo].type = C_Insturction;
+                break;
             }
-            break;
         }
 
-        default:
-        {
-            break;
-        }
+        //we successfully pushed an instruction so we increase the line count
+        ++gInstructionNo;
     }
-    return c;
 }
 
 bool CurrentOpenedFileHasMoreLines()
 {
     return gHasMoreLines == true;
+}
+void close(file_pointer_t openedFile)
+{
+    fclose(openedFile);
+    free(gInstructions);
+}
+int InstructionsCount()
+{
+    return gInstructionNo + 1;
+}
+void PrintInstruction(instruction_t* instruction)
+{
+    char* InstructType;
+    switch (instruction->type)
+    {
+        case A_Insturction:
+        {
+            InstructType = "A_Instruction";
+            break;
+        }
+        case C_Insturction:
+        {
+            InstructType = "C_Instruction";
+            break;
+        }
+        case L_Insturction:
+        {
+            InstructType = "L_Instruction";
+            break;
+        }
+        default:
+        {
+            printf("Error not a known type\n");
+            break;
+        }
+    }
+
+    printf("INSTRUCTION: %s\nInstructionType: %s\nLine Size: %lu\nLineNo. :%d\n------------------------\n",
+        instruction->instructionString,
+        InstructType,
+        instruction->lineSize,
+        instruction->lineNumber);
+}
+
+instruction_t* GetNextInstruction()
+{
+    static int i = 0;
+    if (i < gInstructionNo)
+    {
+        return &gInstructions[i++];
+    }
+    else
+    {
+        printf("Last instruction was reached... returning last instruction\n");
+        return &gInstructions[gInstructionNo - 1];
+    }
+}
+
+void PrintInstructions()
+
+{
+    for (int i = 0; i < gInstructionNo; ++i)
+    {
+        PrintInstruction(GetNextInstruction());
+    }
 }
