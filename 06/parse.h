@@ -10,9 +10,10 @@
 
 typedef enum Instruction_Type
 {
-    A_Insturction,
-    C_Insturction,
-    L_Insturction,
+    A_Insturction, // address instruction: @lineNumber
+    C_Insturction, // execute/compute insturction: M = D - 1
+    L_Insturction, // label instruction: (LABELNAME)
+    E_Instruction // empty instruction, no instruction available
 } Instruction_Type;
 
 typedef struct _instruction
@@ -29,5 +30,5 @@ file_pointer_t InitParse(char const* path_to_file);
 char advance(file_pointer_t openedFile);
 bool CurrentOpenedFileHasMoreLines(void);
 void PushInstruction(file_pointer_t file, char* instruction);
-
+char const* getLineFromStream(file_pointer_t openedFile);
 #endif

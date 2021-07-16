@@ -10,10 +10,7 @@ int main(int argc, char* argv[])
     file_pointer_t currentOpenFile = InitParse(argv[1]); // the path to the file should be the only CL argument of the program
     while (CurrentOpenedFileHasMoreLines())
     {
-        char c;
-        if ((c = advance(currentOpenFile)))
-        {
-            printf("%c", c);
-        }
+        char const* currentLine = getLineFromStream(currentOpenFile);
+        printf("%s\n", currentLine);
     }
 }
