@@ -1,4 +1,4 @@
-dCFLAGS = -g -O0 -Wall -Wextra -Wconversion -pedantic
+CFLAGS = -g -O0 -Wall -Wextra -Wconversion -pedantic
 SOURCES = $(wildcard *.c)
 
 run: compile

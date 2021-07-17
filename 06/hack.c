@@ -14,17 +14,7 @@ int main(int argc, char* argv[])
         PushInstruction(currentLine);
     }
 
-    int count = GetInstructionCount();
-    char stringBuffer[MAX_INSTRUCTION_SIZE];
-    for (int i = 0; i < count; ++i)
-
-    {
-        instruction_t* currentIns = GetNextInstruction();
-        Symbol(currentIns, stringBuffer);
-        Dest(currentIns);
-        Comp(currentIns);
-        Jump(currentIns);
-    }
+    ParseInstructions();
 
     close(currentOpenFile);
 }
