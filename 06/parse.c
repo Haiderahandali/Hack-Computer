@@ -15,21 +15,50 @@ static int gNextAvailableAddr = 16; // we filled the symbol from 0 to 15
 
 static void Parse_L_Instruction(instruction_t* currentInstruction, char* instructionString);
 
-static int StrToInt(char* src)
+static int isDigit(char c)
 {
-    int size  = (int)strlen(src);
-    int value = 0;
-
-    for (int i = 0; i < size; ++i)
-    {
-        int currentCharValue = src[i] - '0';
-        value                = (value * 10) + currentCharValue;
-    }
-
-    return value;
+    return (c <= '9' && c >= '0');
 }
 
-static void DecimalToBinary(int decimal, char* buffer)
+#define PLUS 1
+#define NEGATIVE -1
+typedef long long long_t;
+
+static long_t StrToInt(char* src)
+{
+
+    ulong_t size     = strlen(src);
+    ulong_t value    = 0;
+    signed char sign = PLUS;
+    ulong_t index    = 0;
+
+    if (src[0] == '-')
+    {
+        index = 1;
+        sign  = NEGATIVE;
+    }
+    else if (src[0] == '+')
+    {
+        index = 1;
+    }
+
+    for (; index < size; ++index)
+    {
+        char currentCharValue = src[index]; //assuming ASCII only
+
+        if (!isDigit(currentCharValue))
+        {
+            printf("error: %c is not a digit\n", src[index]);
+            exit(1);
+        }
+
+        value = (value * 10) + (ulong_t)(currentCharValue - '0');
+    }
+
+    return (long_t)value * sign;
+}
+
+static void DecimalToBinary(long_t decimal, char* buffer)
 {
 
     if ((decimal >> 15) > 0)
@@ -1078,7 +1107,7 @@ static void Parse_A_Instruction(instruction_t* currentInstruction, char* instruc
     char firstCh = instructionString[0];
     if ((firstCh >= '0' && firstCh <= '9'))
     {
-        int decimal = StrToInt(instructionString);
+        long_t decimal = StrToInt(instructionString);
         DecimalToBinary(decimal, currentInstruction->instructionBinaryFormat);
         currentInstruction->instructionBinaryFormat[0] = '0';
     }
