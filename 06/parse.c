@@ -1,4 +1,5 @@
 #include "parse.h"
+#include "hashtable.h"
 
 static bool gHasMoreLines;
 static int gInstructionNo;
@@ -7,6 +8,12 @@ static char gBuffer[MAX_INSTRUCTION_SIZE];
 static void Parse_C_Instruction(instruction_t* currentInstruction, char* instructionString, CInstructionType t);
 static void Parse_A_Instruction(instruction_t* currentInstruction, char* instructionString);
 static instruction_t* gInstructions;
+char initStr[17] = "0000000000000000";
+
+static symbol_table_t* gHashtable;
+static int gNextAvailableAddr = 16; // we filled the symbol from 0 to 15
+
+static void Parse_L_Instruction(instruction_t* currentInstruction, char* instructionString);
 
 static int StrToInt(char* src)
 {
@@ -19,22 +26,21 @@ static int StrToInt(char* src)
         value                = (value * 10) + currentCharValue;
     }
 
-    printf("value = %d\n", value);
-
     return value;
 }
 
-static void DecimalToBinary(char* src, char* buffer)
+static void DecimalToBinary(int decimal, char* buffer)
 {
-    int decimal = StrToInt(src);
-    if (decimal >> 15 > 0)
+
+    if ((decimal >> 15) > 0)
     {
         return;
     }
 
     for (int j = 0; j < INSTRUCTION_SIZE_BINARY; ++j)
     {
-        // printf("%d \n",   (decimal & (1 << (INSTRUCTION_SIZE_BINARY - (j +1))))!= 0         );
+
+        //don't know if there is a better way
         buffer[j] += (decimal & (1 << (INSTRUCTION_SIZE_BINARY - (j + 1)))) != 0;
     }
 
@@ -46,12 +52,45 @@ file_pointer_t InitParse(char const* pathToFile)
 
     gInstructionNo = 0;
     gHasMoreLines  = true;
-    gInstructions  = (instruction_t*)malloc(sizeof(instruction_t) * MAX_LINES);
+    gInstructions  = malloc(sizeof(instruction_t) * MAX_LINES);
+    for (int i = 0; i < MAX_LINES; ++i)
+    {
+        gInstructions[i].instructionString       = malloc(sizeof(char) * MAX_INSTRUCTION_SIZE);
+        gInstructions[i].instructionBinaryFormat = malloc(sizeof(char) * (INSTRUCTION_SIZE_BINARY + 1));
+    }
+
+    gHashtable = CreateSymbolTable(MAX_LINES);
+
+    HashtableInsertSymbol("SP", 0, gHashtable);
+    HashtableInsertSymbol("LCL", 1, gHashtable);
+    HashtableInsertSymbol("ARG", 2, gHashtable);
+    HashtableInsertSymbol("THIS", 3, gHashtable);
+    HashtableInsertSymbol("THAT", 4, gHashtable);
+
+    HashtableInsertSymbol("R0", 0, gHashtable);
+    HashtableInsertSymbol("R1", 1, gHashtable);
+    HashtableInsertSymbol("R2", 2, gHashtable);
+    HashtableInsertSymbol("R3", 3, gHashtable);
+    HashtableInsertSymbol("R4", 4, gHashtable);
+    HashtableInsertSymbol("R5", 5, gHashtable);
+    HashtableInsertSymbol("R6", 6, gHashtable);
+    HashtableInsertSymbol("R7", 7, gHashtable);
+    HashtableInsertSymbol("R8", 8, gHashtable);
+    HashtableInsertSymbol("R9", 9, gHashtable);
+    HashtableInsertSymbol("R10", 10, gHashtable);
+    HashtableInsertSymbol("R11", 11, gHashtable);
+    HashtableInsertSymbol("R12", 12, gHashtable);
+    HashtableInsertSymbol("R13", 13, gHashtable);
+    HashtableInsertSymbol("R14", 14, gHashtable);
+    HashtableInsertSymbol("R15", 15, gHashtable);
+    HashtableInsertSymbol("SCREEN", 16384, gHashtable);
+    HashtableInsertSymbol("KBD", 24576, gHashtable);
+
     return fopen(pathToFile, "r");
 }
 
 //This already strip out extra tokens such as whitespaces, comments
-char const* getLineFromStream(file_pointer_t openedFile)
+char const* GetLineFromStream(file_pointer_t openedFile)
 {
     int i = 0;
 
@@ -67,6 +106,7 @@ char const* getLineFromStream(file_pointer_t openedFile)
                 break;
             }
 
+            case CR:
             case '\n':
             {
                 endOfLine = true;
@@ -117,24 +157,27 @@ char const* getLineFromStream(file_pointer_t openedFile)
 void PushInstruction(char const* instructionLine)
 {
     ulong_t stringSize = strlen(instructionLine);
-    static int lineNo  = 0;
+    static int lineNo  = -1;
     if (stringSize > 0) //if not am empty instruction do nothing
     {
-        if (stringSize >= 16)
+        if (stringSize >= MAX_INSTRUCTION_SIZE)
         {
-            printf("instruction String size is above maximum (16 characters), skipping to next instruction ....\n");
+            printf("instruction:%s  size is above maximum %d, skipping to next instruction ....\n", instructionLine, MAX_INSTRUCTION_SIZE);
             return;
         }
-        gInstructions[gInstructionNo].lineSize   = stringSize;
-        gInstructions[gInstructionNo].lineNumber = ++lineNo;
+        gInstructions[gInstructionNo].lineSize = stringSize;
         strcpy(gInstructions[gInstructionNo].instructionString, instructionLine);
+
+        strcpy(gInstructions[gInstructionNo].instructionBinaryFormat, initStr);
 
         char firstCh = instructionLine[0];
         switch (firstCh)
         {
             case '@':
             {
-                gInstructions[gInstructionNo].type = A_Insturction;
+                gInstructions[gInstructionNo].type       = A_Insturction;
+                gInstructions[gInstructionNo].lineNumber = ++lineNo;
+
                 break;
             }
             case '(':
@@ -145,20 +188,28 @@ void PushInstruction(char const* instructionLine)
                 }
                 else
                 {
-                    gInstructions[gInstructionNo].type = L_Insturction;
+                    //this needed here, because we can declare symbols
+                    //before we use them, so before parsing the strings,
+                    //they should be added to the symbol table
+                    gInstructions[gInstructionNo].type       = L_Insturction;
+                    gInstructions[gInstructionNo].lineNumber = lineNo;
+                    char temp[MAX_INSTRUCTION_SIZE + 1];
+                    Symbol(&gInstructions[gInstructionNo], temp);
+                    Parse_L_Instruction(&gInstructions[gInstructionNo], temp);
+                    // empty instruction
+                    gInstructions[gInstructionNo].instructionBinaryFormat[0] = '\0';
+                    break;
                 }
                 break;
             }
             default:
             {
-                gInstructions[gInstructionNo].type = C_Insturction;
+                gInstructions[gInstructionNo].type       = C_Insturction;
+                gInstructions[gInstructionNo].lineNumber = ++lineNo;
                 break;
             }
         }
 
-        char initStr[17] = "0000000000000000";
-
-        strcpy(gInstructions[gInstructionNo].instructionBinaryFormat, initStr);
         //we successfully pushed an instruction so we increase the line count
         ++gInstructionNo;
     }
@@ -171,16 +222,22 @@ bool CurrentOpenedFileHasMoreLines()
 void close(file_pointer_t openedFile)
 {
     fclose(openedFile);
+    for (int i = 0; i < MAX_LINES; ++i)
+    {
+        free(gInstructions[i].instructionString);
+        free(gInstructions[i].instructionBinaryFormat);
+    }
     free(gInstructions);
+    DestroySymbolTable(gHashtable);
 }
 int GetInstructionCount()
 {
     return gInstructionNo;
 }
-void PrintInstruction(instruction_t* instruction)
+void PrintInstruction(instruction_t* currentInstruction)
 {
     char* InstructType;
-    switch (instruction->type)
+    switch (currentInstruction->type)
     {
         case A_Insturction:
         {
@@ -204,11 +261,35 @@ void PrintInstruction(instruction_t* instruction)
         }
     }
 
-    printf("INSTRUCTION: %s\nInstructionType: %s\nLine Size: %lu\nLineNo. :%d\n------------------------\n",
-        instruction->instructionString,
+    char temp1[MAX_INSTRUCTION_SIZE];
+    char temp2[MAX_INSTRUCTION_SIZE];
+    char temp3[MAX_INSTRUCTION_SIZE];
+    char temp4[MAX_INSTRUCTION_SIZE];
+
+    Symbol(currentInstruction, temp1);
+    Dest(currentInstruction, temp2);
+    Jump(currentInstruction, temp3);
+    Comp(currentInstruction, temp4);
+
+    printf("INSTRUCTION: %s"
+           "\nInstruction Binary Format: %s"
+           "\nInstructionType: %s"
+           "\nSymbol: %s"
+           "\nDest: %s"
+           "\nJump: %s"
+           "\nComp: %s"
+           "\nLine Size: %lu"
+           "\nLineNo. :%d"
+           "\n------------------------\n",
+        currentInstruction->instructionString,
+        currentInstruction->instructionBinaryFormat,
         InstructType,
-        instruction->lineSize,
-        instruction->lineNumber);
+        temp1,
+        temp2,
+        temp3,
+        temp4,
+        currentInstruction->lineSize,
+        currentInstruction->lineNumber);
 }
 
 instruction_t* GetNextInstruction()
@@ -226,7 +307,7 @@ instruction_t* GetNextInstruction()
     }
 }
 
-void PrintInstructions()
+void PrintAllInstructionInfo()
 
 {
     for (int i = 0; i < gInstructionNo; ++i)
@@ -290,8 +371,7 @@ void Dest(instruction_t* currentInstruction, char* temp)
                 strncpy(temp, insStr, stringSize);
                 temp[stringSize] = '\0';
 
-                // int hashValue = HashInstruction(currentInstruction, temp, Dest_type);
-                printf("Dest: %s\n", temp);
+                // printf("Dest: %s\n", temp);
             }
             else
             {
@@ -328,20 +408,17 @@ void Comp(instruction_t* currentInstruction, char* temp)
                 if (colSign != NULL)
                 {
                     long stringSize = colSign - eqSign;
-                    strncpy(temp, eqSign, stringSize);
+                    strncpy(temp, eqSign + 1, stringSize - 1);
                     temp[stringSize] = '\0';
-
-                    printf("Comp: %s\n", temp);
                 }
                 else
                 {
 
                     ulong_t insSize = strlen(insStr);
                     long stringSize = &insStr[insSize - 1] - eqSign;
-                    char temp[MAX_INSTRUCTION_SIZE];
+
                     strncpy(temp, eqSign + 1, stringSize);
                     temp[stringSize] = '\0';
-                    printf("Comp: %s\n", temp);
                 }
             }
             else
@@ -350,10 +427,8 @@ void Comp(instruction_t* currentInstruction, char* temp)
                 if (colSign != NULL)
                 {
                     long stringSize = colSign - insStr;
-                    char temp[MAX_INSTRUCTION_SIZE];
                     strncpy(temp, insStr, stringSize);
                     temp[stringSize] = '\0';
-                    printf("Comp: %s\n", temp);
                 }
                 else
                 {
@@ -398,10 +473,6 @@ void Jump(instruction_t* currentInstruction, char* temp)
                 {
                     printf("error expected 3 character jump expression");
                 }
-                else
-                {
-                    printf("Jump: %s\n", temp);
-                }
             }
             else
             {
@@ -417,7 +488,7 @@ void Jump(instruction_t* currentInstruction, char* temp)
     }
 }
 
-static int sumChars(char* temp)
+static int SumChars(char* temp)
 {
     int index = 0;
     int sum   = 0;
@@ -434,8 +505,9 @@ static void Parse_C_Instruction(instruction_t* currentInstruction, char* instruc
 
     // Instruction format is 111accccccdddjjj
 
-    int hashValue = sumChars(instructionString);
+    int sumValue = SumChars(instructionString);
 
+    currentInstruction->instructionBinaryFormat[0] = '1';
     currentInstruction->instructionBinaryFormat[1] = '1';
     currentInstruction->instructionBinaryFormat[2] = '1';
 
@@ -443,7 +515,7 @@ static void Parse_C_Instruction(instruction_t* currentInstruction, char* instruc
     {
         case Dest_type:
         {
-            switch (hashValue)
+            switch (sumValue)
             {
                 case noDest:
                 {
@@ -473,9 +545,10 @@ static void Parse_C_Instruction(instruction_t* currentInstruction, char* instruc
                     currentInstruction->instructionBinaryFormat[12] = '0';
                     break;
                 }
-                case DM:
+                // case MD: // this is actually illegal instruction but it has been used in the test cases and it should be DM
+                case MD:
                 {
-                    currentInstruction->dest = DM;
+                    currentInstruction->dest = MD;
 
                     currentInstruction->instructionBinaryFormat[10] = '0';
                     currentInstruction->instructionBinaryFormat[11] = '1';
@@ -529,7 +602,7 @@ static void Parse_C_Instruction(instruction_t* currentInstruction, char* instruc
         }
         case Jump_type:
         {
-            switch (hashValue)
+            switch (sumValue)
             {
                 case noJump:
                 {
@@ -609,7 +682,7 @@ static void Parse_C_Instruction(instruction_t* currentInstruction, char* instruc
         }
         case Comp_type:
         {
-            switch (hashValue)
+            switch (sumValue)
             {
                 case Zero:
                 {
@@ -1005,12 +1078,43 @@ static void Parse_A_Instruction(instruction_t* currentInstruction, char* instruc
     char firstCh = instructionString[0];
     if ((firstCh >= '0' && firstCh <= '9'))
     {
-        DecimalToBinary(instructionString, currentInstruction->instructionBinaryFormat);
+        int decimal = StrToInt(instructionString);
+        DecimalToBinary(decimal, currentInstruction->instructionBinaryFormat);
         currentInstruction->instructionBinaryFormat[0] = '0';
     }
     else
     {
-        printf("symbols are not supported yet");
+        symbol_t* symbol = GetSymbolInHashTable(gHashtable, instructionString);
+        if (symbol == NULL)
+        {
+            //if this is the first time we see the symbol,
+            //we give it the next available address
+            HashtableInsertSymbol(instructionString, gNextAvailableAddr, gHashtable);
+
+            DecimalToBinary(gNextAvailableAddr, currentInstruction->instructionBinaryFormat);
+            currentInstruction->instructionBinaryFormat[0] = '0';
+            ++gNextAvailableAddr;
+        }
+
+        else
+        {
+            DecimalToBinary(symbol->value, currentInstruction->instructionBinaryFormat);
+            currentInstruction->instructionBinaryFormat[0] = '0';
+        }
+    }
+}
+static void Parse_L_Instruction(instruction_t* currentInstruction, char* instructionString)
+{
+    symbol_t* symbol = GetSymbolInHashTable(gHashtable, instructionString);
+    if (symbol == NULL)
+    {
+        int nextLine = currentInstruction->lineNumber + 1;
+        HashtableInsertSymbol(instructionString, nextLine, gHashtable);
+    }
+    else
+    {
+
+        printf("error this lable: %s was already declared at line %d\n", instructionString, symbol->value - 1);
     }
 }
 
@@ -1022,15 +1126,14 @@ void ParseInstructions(void)
         {
             case A_Insturction:
             {
-                char temp[INSTRUCTION_SIZE_BINARY + 1];
+                char temp[MAX_INSTRUCTION_SIZE + 1];
                 Symbol(&gInstructions[i], temp);
                 Parse_A_Instruction(&gInstructions[i], temp);
-                printf("%s\n", gInstructions[i].instructionBinaryFormat);
                 break;
             }
             case C_Insturction:
             {
-                char temp[INSTRUCTION_SIZE_BINARY + 1];
+                char temp[MAX_INSTRUCTION_SIZE + 1];
                 Dest(&gInstructions[i], temp);
                 Parse_C_Instruction(&gInstructions[i], temp, Dest_type);
                 Jump(&gInstructions[i], temp);
@@ -1038,15 +1141,36 @@ void ParseInstructions(void)
                 Comp(&gInstructions[i], temp);
                 Parse_C_Instruction(&gInstructions[i], temp, Comp_type);
 
-                printf("%s\n", gInstructions[i].instructionBinaryFormat);
+                break;
+            }
+            case L_Insturction:
+            {
+                //the rest were handled already handled in PushInstructions
                 break;
             }
 
             default:
             {
-                printf("not supported for now\n");
+                printf("Error: Unknown instruction type \n");
                 break;
             }
         }
     }
+}
+
+void WriteBinaryInstructions(char* fileName)
+{
+    FILE* openedFile = fopen(fileName, "w");
+
+    char* newLine = "\n";
+    for (int i = 0; i < gInstructionNo; ++i)
+    {
+        if (gInstructions[i].type != L_Insturction)
+        {
+            fwrite(gInstructions[i].instructionBinaryFormat, sizeof(char), INSTRUCTION_SIZE_BINARY,
+                openedFile);
+            fwrite(newLine, sizeof(char), 1, openedFile);
+        }
+    }
+    fclose(openedFile);
 }

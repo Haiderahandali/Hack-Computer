@@ -6,26 +6,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define MAX_INSTRUCTION_SIZE 32
+#define MAX_INSTRUCTION_SIZE 64 //64 character
 #define INSTRUCTION_SIZE_BINARY 16
-#define MAX_LINES 1000
+#define MAX_LINES 30000
+#define CR 13 //carriage return
 
 typedef FILE* file_pointer_t;
 typedef unsigned long ulong_t;
-
-typedef enum Instruction_Type
-{
-    A_Insturction, // address instruction: @lineNumber
-    C_Insturction, // execute/compute insturction: M = D - 1
-    L_Insturction, // label instruction: (LABELNAME)
-} Instruction_Type;
 
 typedef enum Dest_Instruction
 {
     noDest = (3 * 0),
     M      = (3 * 'M'),
     D      = (3 * 'D'),
-    DM     = (3 * 'D') + 'M',
+    MD     = (3 * 'M') + 'D',
     A      = (3 * 'A'),
     AM     = (3 * 'A') + 'M',
     AD     = (3 * 'A') + 'D',
@@ -78,11 +72,26 @@ typedef enum Comp_Instruction
 
 } Comp_Instruction;
 
+typedef enum CInstructionType
+{
+    Dest_type,
+    Comp_type,
+    Jump_type,
+
+} CInstructionType;
+
+typedef enum Instruction_Type
+{
+    A_Insturction, // address instruction: @lineNumber
+    C_Insturction, // execute/compute insturction: M = D - 1
+    L_Insturction, // label instruction: (LABELNAME)
+} Instruction_Type;
+
 typedef struct _instruction
 {
     Instruction_Type type;
-    char instructionString[MAX_INSTRUCTION_SIZE];
-    char instructionBinaryFormat[INSTRUCTION_SIZE_BINARY + 1];
+    char* instructionString;
+    char* instructionBinaryFormat;
     int lineNumber;
     ulong_t lineSize;
 
@@ -94,28 +103,20 @@ typedef struct _instruction
 
 file_pointer_t InitParse(char const* path_to_file);
 bool CurrentOpenedFileHasMoreLines(void);
-char const* getLineFromStream(file_pointer_t openedFile);
+char const* GetLineFromStream(file_pointer_t openedFile);
 instruction_t* GetNextInstruction();
 int GetInstructionCount();
 
 void close(file_pointer_t openedFile);
 void PushInstruction(char const* instruction);
 void PrintInstruction(instruction_t* instruction);
-void PrintInstructions(void);
+void PrintAllInstructionInfo(void);
 
 void Symbol(instruction_t* currentInstruction, char* stringBuffer);
 void Dest(instruction_t* currentInstruction, char* stringBuffer);
 void Comp(instruction_t* currentInstruction, char* stringBuffer);
 void Jump(instruction_t* currentInstruction, char* stringBuffer);
-
-typedef enum CInstructionType
-{
-    Dest_type,
-    Comp_type,
-    Jump_type,
-
-} CInstructionType;
-
 void ParseInstructions(void);
+void WriteBinaryInstructions(char* fileName);
 
 #endif

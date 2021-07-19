@@ -5,3 +5,7 @@
 **/cmake-build-debug
 **/a.out.dSYM
 **/build
+**/*.sublime-project
+**/*.sublime-workspace
+**/*.hack
+**/*.txt
