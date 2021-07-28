@@ -1,6 +1,6 @@
 /demo
 **/.DS_Store
-**/a.out
+**/*.out
 **/.idea
 **/cmake-build-debug
 **/a.out.dSYM
