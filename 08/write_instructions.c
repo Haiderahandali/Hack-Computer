@@ -609,138 +609,72 @@ void WriteLabel(FILE* openedFile, char* label)
     fprintf(openedFile, "(%s)\n", label);
 }
 
-void CallFunction(FILE* openedFile, char* fileName, char* functionName, int nArgs)
+void CallFunction(FILE* openedFile, char* functionName, int nArgs)
 {
-    char* slash = strchr(fileName, '/');
-    if (slash != NULL)
-    {
-        CallFunction(openedFile, (slash + 1) /*file name*/, functionName, nArgs);
-    }
-    else
-    {
-        /*
-        @%s$%s.ret.i\n // push @returnAddress
-        D = A
-        @SP 
-        M = M + 1
-        A = M - 1
-        M = D
-        
-        @LCL // Push LCL
-        D = M
-        @SP 
-        M = M + 1
-        A = M - 1
-        M = D
-        
-        @ARG // Push ARG
-        D = M
-        @SP 
-        M = M + 1
-        A = M - 1
-        M = D
-        
-        @THIS // Push THIS
-        D = M
-        @SP 
-        M = M + 1
-        A = M - 1
-        M = D
+    static int i = 0; //the number of times a function is being called, help with recursiveness
 
-        @THAT // Push THAT
-        D = M
-        @SP 
-        M = M + 1
-        A = M - 1
-        M = D
-        
+    fprintf(openedFile,
 
-        @5
-        D = A
-        @SP
-        D = M - D
-        @%d
-        D = D - A 
-    
-        @ARG
-        M = D
+        "@%s$ret.%d\n // push @returnAddress\n"
+        "D = A\n"
+        "@SP \n"
+        "M = M + 1\n"
+        "A = M - 1\n"
+        "M = D\n"
+        "@LCL \n// Push LCL\n"
+        "D = M\n"
+        "@SP \n"
+        "M = M + 1\n"
+        "A = M - 1\n"
+        "M = D\n"
 
-        @SP
-        D = M
-        @LCL
-        M = D
-    
-        //------calling the function label
-        @%s$$s\n 
-        0;JMP
+        "@ARG \n// Push ARG\n"
+        "D = M\n"
+        "@SP \n"
+        "M = M + 1\n"
+        "A = M - 1\n"
+        "M = D\n"
 
-        (%s$%s.ret\n)
-        */
-        static int i = 0; //the number of times a function is being called, help with recursiveness
+        "@THIS \n// Push THIS\n"
+        "D = M\n"
+        "@SP \n"
+        "M = M + 1\n"
+        "A = M - 1\n"
+        "M = D\n"
 
-        fprintf(openedFile,
+        "@THAT \n// Push THAT\n"
+        "D = M\n"
+        "@SP \n"
+        "M = M + 1\n"
+        "A = M - 1\n"
+        "M = D\n"
 
-            "@%s$%s.ret.%d\n // push @returnAddress\n"
-            "D = A\n"
-            "@SP \n"
-            "M = M + 1\n"
-            "A = M - 1\n"
-            "M = D\n"
-            "@LCL \n// Push LCL\n"
-            "D = M\n"
-            "@SP \n"
-            "M = M + 1\n"
-            "A = M - 1\n"
-            "M = D\n"
+        "\n// ARG = SP - 5 - nArgs\n"
+        "@5\n"
+        "D = A\n"
+        "@SP\n"
+        "D = M - D\n"
+        "@%d\n"
+        "D = D - A \n"
 
-            "@ARG \n// Push ARG\n"
-            "D = M\n"
-            "@SP \n"
-            "M = M + 1\n"
-            "A = M - 1\n"
-            "M = D\n"
+        "@ARG\n"
+        "M = D\n"
 
-            "@THIS \n// Push THIS\n"
-            "D = M\n"
-            "@SP \n"
-            "M = M + 1\n"
-            "A = M - 1\n"
-            "M = D\n"
+        "//LCL = SP\n"
+        "@SP\n"
+        "D = M\n"
+        "@LCL\n"
+        "M = D\n"
 
-            "@THAT \n// Push THAT\n"
-            "D = M\n"
-            "@SP \n"
-            "M = M + 1\n"
-            "A = M - 1\n"
-            "M = D\n"
+        "//------calling the function label\n"
+        "@%s \n"
+        "0;JMP\n"
 
-            "\n// ARG = SP - 5 - nArgs\n"
-            "@5\n"
-            "D = A\n"
-            "@SP\n"
-            "D = M - D\n"
-            "@%d\n"
-            "D = D - A \n"
+        "(%s$ret.%d)\n",
+        functionName, i, nArgs, functionName, functionName, i
 
-            "@ARG\n"
-            "M = D\n"
-
-            "//LCL = SP\n"
-            "@SP\n"
-            "D = M\n"
-            "@LCL\n"
-            "M = D\n"
-
-            "//------calling the function label\n"
-            "@%s$%s\n \n"
-            "0;JMP\n"
-
-            "(%s$%s.ret.%d)\n",
-            fileName, functionName, i, nArgs, fileName, functionName, fileName, functionName, i
-
-        );
-        ++i;
-    }
+    );
+    ++i;
 }
 
 void SetInfiniteLoop(FILE* openedFile)
@@ -753,21 +687,13 @@ void SetInfiniteLoop(FILE* openedFile)
 // {
 //     // fprintf(openedFile, "%s\n", );
 // }
-void GenerateFunctionLable(FILE* openedFile, char* fileName, char* functionName, int nVars)
+void GenerateFunctionLable(FILE* openedFile, char* functionName, int nVars)
 {
-    char* slash = strchr(fileName, '/');
-    if (slash != NULL)
-    {
-        GenerateFunctionLable(openedFile, (slash + 1), functionName, nVars);
-    }
-    else
-    {
-        fprintf(openedFile, "(%s$%s)\n", fileName, functionName);
+    fprintf(openedFile, "(%s)\n", functionName);
 
-        for (int i = 0; i < nVars; ++i)
-        {
-            PushConstant(0, openedFile);
-            PopLocal(i, openedFile);
-        }
+    for (int i = 0; i < nVars; ++i)
+    {
+        PushConstant(0, openedFile);
+        PopLocal(i, openedFile);
     }
 }

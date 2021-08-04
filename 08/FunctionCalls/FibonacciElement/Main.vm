@@ -8,11 +8,7 @@
 // (part of the Sys.vm file), which also pushes the argument[0] 
 // parameter before this code starts running.
 
-
-push constant 4
-call Main.fibonacci 1   // computes the 4'th fibonacci element
-label WHILE
-goto WHILE
+call Sys.init 0
 function Main.fibonacci 0
 push argument 0
 push constant 2

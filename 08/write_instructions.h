@@ -37,7 +37,7 @@ void WriteLabel(FILE* openFile, char* label);
 void WriteIfGoto(FILE* openFile, char* label);
 void WriteGoto(FILE* openFile, char* label);
 void SetInfiniteLoop(FILE* openedFile);
-void GenerateFunctionLable(FILE* openedFile, char* fileName, char* functionName, int nVars);
+void GenerateFunctionLable(FILE* openedFile, char* functionName, int nVars);
 void ReturnFunc(FILE* openFile);
-void CallFunction(FILE* openFile, char* fileName, char* functionName, int nArgs);
+void CallFunction(FILE* openFile, char* functionName, int nArgs);
 #endif

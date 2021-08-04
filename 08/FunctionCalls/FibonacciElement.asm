@@ -1,11 +1,4 @@
-@4 
-D = A 
-@SP 
-A = M 
-M = D 
-@SP
-M = M + 1
-@Main$Main.fibonacci.ret.0
+@Sys.init$ret.0
  // push @returnAddress
 D = A
 @SP 
@@ -46,7 +39,7 @@ M = D
 D = A
 @SP
 D = M - D
-@1
+@0
 D = D - A 
 @ARG
 M = D
@@ -56,14 +49,10 @@ D = M
 @LCL
 M = D
 //------calling the function label
-@Main$Main.fibonacci
- 
+@Sys.init 
 0;JMP
-(Main$Main.fibonacci.ret.0)
-(WHILE)
-@WHILE
-0;JMP
-(Main$Main.fibonacci)
+(Sys.init$ret.0)
+(Main.fibonacci)
 @0 
 D = A
 @ARG 
@@ -201,7 +190,7 @@ D = M
 M = M - 1
 A = M - 1
 M = M - D
-@Main$Main.fibonacci.ret.1
+@Main.fibonacci$ret.1
  // push @returnAddress
 D = A
 @SP 
@@ -252,10 +241,9 @@ D = M
 @LCL
 M = D
 //------calling the function label
-@Main$Main.fibonacci
- 
+@Main.fibonacci 
 0;JMP
-(Main$Main.fibonacci.ret.1)
+(Main.fibonacci$ret.1)
 @0 
 D = A
 @ARG 
@@ -279,7 +267,7 @@ D = M
 M = M - 1
 A = M - 1
 M = M - D
-@Main$Main.fibonacci.ret.2
+@Main.fibonacci$ret.2
  // push @returnAddress
 D = A
 @SP 
@@ -330,10 +318,9 @@ D = M
 @LCL
 M = D
 //------calling the function label
-@Main$Main.fibonacci
- 
+@Main.fibonacci 
 0;JMP
-(Main$Main.fibonacci.ret.2)
+(Main.fibonacci$ret.2)
 @SP
 A = M - 1
 D = M
@@ -400,7 +387,7 @@ M = D
 @R14
 A = M
 0;JMP
-(Sys$Sys.init)
+(Sys.init)
 @4 
 D = A 
 @SP 
@@ -408,7 +395,7 @@ A = M
 M = D 
 @SP
 M = M + 1
-@Sys$Main.fibonacci.ret.3
+@Main.fibonacci$ret.3
  // push @returnAddress
 D = A
 @SP 
@@ -459,13 +446,9 @@ D = M
 @LCL
 M = D
 //------calling the function label
-@Sys$Main.fibonacci
- 
+@Main.fibonacci 
 0;JMP
-(Sys$Main.fibonacci.ret.3)
+(Main.fibonacci$ret.3)
 (WHILE)
 @WHILE
-0;JMP
-(END)
-@END
 0;JMP
