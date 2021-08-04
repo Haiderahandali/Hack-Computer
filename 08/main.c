@@ -86,19 +86,36 @@ int main(int argc, char const* argv[])
             else
             {
                 printf("File: %s\n", fullpath);
-                InitMain(fullpath);
-                PrintInstructions();
-                PrintSplitedLines(GetVmInstructions());
+                char* extension = strchr(fullpath, '.'); //assuming a single dot (.) in the file name for the extension
+                if (extension != NULL)
+                {
+                    if (strcmp(extension, ".vm") == 0)
+                    {
+                        size_t size = strlen(fullpath);
 
-                WriteMachineInstructions(output, GetLines(), entry->d_name);
-                CloseMain();
+                        char fileName[size + 1];
+                        strncpy(fileName, fullpath, extension - fullpath);
+
+                        fileName[size - 3] = '\0';
+
+                        InitMain(fullpath);
+                        PrintInstructions();
+                        PrintSplitedLines(GetVmInstructions());
+
+                        WriteMachineInstructions(output, GetLines(), fileName);
+                        CloseMain();
+                    }
+                    else
+                    {
+                        printf("not a vm extension, returning...\n");
+                    }
+                }
+                free(fullpath);
             }
-            free(fullpath);
         }
 
         closedir(folder);
     }
-    SetInfiniteLoop(output->output);
     CloseOutputStruct(&output);
     return 0;
 }

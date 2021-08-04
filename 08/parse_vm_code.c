@@ -136,7 +136,9 @@ void WriteMachineInstructions(output_struct_t* o, lines_t* instructionLines, cha
     //------------ Opening/Preparing Output file --------------//
 
     //reading instructions of each line, one line at a time
+
     FILE* openFile = o->output;
+    // SysInit(openFile);
     for (int currentLine = 0, lineCount = instructionLines->lineCount; currentLine < lineCount; ++currentLine)
     {
 
@@ -180,6 +182,10 @@ void WriteMachineInstructions(output_struct_t* o, lines_t* instructionLines, cha
                 Not(openFile);
             }
 
+            else if (strcmp(instructionLines->lines[currentLine].words[0], "return") == 0)
+            {
+                ReturnFunc(openFile);
+            }
             else
             {
                 printf("Operation not supported for now\n");
@@ -282,6 +288,14 @@ void WriteMachineInstructions(output_struct_t* o, lines_t* instructionLines, cha
                 {
                     PopStatic(value, openFile, fileName);
                 }
+            }
+            else if (strcmp(instructionLines->lines[currentLine].words[0], "function") == 0)
+            {
+                GenerateFunctionLable(openFile, fileName, instructionLines->lines[currentLine].words[1], value);
+            }
+            else if (strcmp(instructionLines->lines[currentLine].words[0], "call") == 0)
+            {
+                CallFunction(openFile, fileName, instructionLines->lines[currentLine].words[1], value);
             }
             else
             {
