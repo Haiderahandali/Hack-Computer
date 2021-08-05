@@ -374,7 +374,7 @@ void PopArgument(int ARG, FILE* openedFile)
         "D = A\n"
         "@ARG \n"
         "D = M + D\n"
-        "@R15\n"
+        "@R13\n"
         "M = D\n"
 
         "@SP\n"
@@ -383,7 +383,7 @@ void PopArgument(int ARG, FILE* openedFile)
         "A = M\n"
 
         "D = M \n"
-        "@R15\n"
+        "@R13\n"
         "A = M\n"
         "M = D\n",
         ARG, ARG);
@@ -507,7 +507,7 @@ void WriteIfGoto(FILE* openedFile, char* label)
 
 void ReturnFunc(FILE* openedFile)
 {
-    PopArgument(0, openedFile);
+
     fprintf(openedFile,
         "//Return Function\n"
         "@LCL\n"
@@ -521,8 +521,9 @@ void ReturnFunc(FILE* openedFile)
         "A = M - D\n"
         "D = M\n"
         "@R14 \n"
-        "M = D  \n"
-
+        "M = D  \n");
+    PopArgument(0, openedFile);
+    fprintf(openedFile,
         "@ARG \n"
         "D = M + 1\n"
         "@SP\n"

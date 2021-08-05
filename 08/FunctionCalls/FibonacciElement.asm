@@ -66,20 +66,6 @@ D = M
 M = M + 1
 A = M - 1
 M = D
-//Pop Argument 0 
-@0
-D = A
-@ARG 
-D = M + D
-@R15
-M = D
-@SP
-M = M - 1
-A = M
-D = M 
-@R15
-A = M
-M = D
 //Return Function
 @LCL
 D = M
@@ -92,6 +78,20 @@ A = M - D
 D = M
 @R14 
 M = D  
+//Pop Argument 0 
+@0
+D = A
+@ARG 
+D = M + D
+@R13
+M = D
+@SP
+M = M - 1
+A = M
+D = M 
+@R13
+A = M
+M = D
 @ARG 
 D = M + 1
 @SP
@@ -298,20 +298,6 @@ D = M
 M = M - 1
 A = M - 1
 M = M + D
-//Pop Argument 0 
-@0
-D = A
-@ARG 
-D = M + D
-@R15
-M = D
-@SP
-M = M - 1
-A = M
-D = M 
-@R15
-A = M
-M = D
 //Return Function
 @LCL
 D = M
@@ -324,6 +310,20 @@ A = M - D
 D = M
 @R14 
 M = D  
+//Pop Argument 0 
+@0
+D = A
+@ARG 
+D = M + D
+@R13
+M = D
+@SP
+M = M - 1
+A = M
+D = M 
+@R13
+A = M
+M = D
 @ARG 
 D = M + 1
 @SP
