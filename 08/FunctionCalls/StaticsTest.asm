@@ -1,11 +1,11 @@
-@261
-D = A
-@SP
-M = D
 @Sys.init
 0;JMP
 //Generate Function Label Class1.set
 (Class1.set)
+@0
+D = A
+@SP
+M = M + D
 // Push Arg 0
 @0 
 D = A
@@ -48,20 +48,6 @@ A = M
 M = D 
 @SP
 M = M + 1
-//Pop Argument 0 
-@0
-D = A
-@ARG 
-D = M + D
-@R15
-M = D
-@SP
-M = M - 1
-A = M
-D = M 
-@R15
-A = M
-M = D
 //Return Function
 @LCL
 D = M
@@ -74,6 +60,20 @@ A = M - D
 D = M
 @R14 
 M = D  
+//Pop Argument 0 
+@0
+D = A
+@ARG 
+D = M + D
+@R13
+M = D
+@SP
+M = M - 1
+A = M
+D = M 
+@R13
+A = M
+M = D
 @ARG 
 D = M + 1
 @SP
@@ -111,6 +111,10 @@ A = M
 0;JMP
 //Generate Function Label Class1.get
 (Class1.get)
+@0
+D = A
+@SP
+M = M + D
 //Push static 0
 @Class1.0
 D = M 
@@ -133,20 +137,6 @@ D = M
 M = M - 1
 A = M - 1
 M = M - D
-//Pop Argument 0 
-@0
-D = A
-@ARG 
-D = M + D
-@R15
-M = D
-@SP
-M = M - 1
-A = M
-D = M 
-@R15
-A = M
-M = D
 //Return Function
 @LCL
 D = M
@@ -159,6 +149,20 @@ A = M - D
 D = M
 @R14 
 M = D  
+//Pop Argument 0 
+@0
+D = A
+@ARG 
+D = M + D
+@R13
+M = D
+@SP
+M = M - 1
+A = M
+D = M 
+@R13
+A = M
+M = D
 @ARG 
 D = M + 1
 @SP
@@ -196,6 +200,10 @@ A = M
 0;JMP
 //Generate Function Label Sys.init
 (Sys.init)
+@0
+D = A
+@SP
+M = M + D
 //Push Constant 6
 @6 
 D = A 
@@ -468,6 +476,10 @@ M = D
 0;JMP
 //Generate Function Label Class2.set
 (Class2.set)
+@0
+D = A
+@SP
+M = M + D
 // Push Arg 0
 @0 
 D = A
@@ -510,20 +522,6 @@ A = M
 M = D 
 @SP
 M = M + 1
-//Pop Argument 0 
-@0
-D = A
-@ARG 
-D = M + D
-@R15
-M = D
-@SP
-M = M - 1
-A = M
-D = M 
-@R15
-A = M
-M = D
 //Return Function
 @LCL
 D = M
@@ -536,6 +534,20 @@ A = M - D
 D = M
 @R14 
 M = D  
+//Pop Argument 0 
+@0
+D = A
+@ARG 
+D = M + D
+@R13
+M = D
+@SP
+M = M - 1
+A = M
+D = M 
+@R13
+A = M
+M = D
 @ARG 
 D = M + 1
 @SP
@@ -573,6 +585,10 @@ A = M
 0;JMP
 //Generate Function Label Class2.get
 (Class2.get)
+@0
+D = A
+@SP
+M = M + D
 //Push static 0
 @Class2.0
 D = M 
@@ -595,20 +611,6 @@ D = M
 M = M - 1
 A = M - 1
 M = M - D
-//Pop Argument 0 
-@0
-D = A
-@ARG 
-D = M + D
-@R15
-M = D
-@SP
-M = M - 1
-A = M
-D = M 
-@R15
-A = M
-M = D
 //Return Function
 @LCL
 D = M
@@ -621,6 +623,20 @@ A = M - D
 D = M
 @R14 
 M = D  
+//Pop Argument 0 
+@0
+D = A
+@ARG 
+D = M + D
+@R13
+M = D
+@SP
+M = M - 1
+A = M
+D = M 
+@R13
+A = M
+M = D
 @ARG 
 D = M + 1
 @SP
