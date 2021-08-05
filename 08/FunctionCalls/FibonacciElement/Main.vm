@@ -8,7 +8,6 @@
 // (part of the Sys.vm file), which also pushes the argument[0] 
 // parameter before this code starts running.
 
-call Sys.init 0
 function Main.fibonacci 0
 push argument 0
 push constant 2

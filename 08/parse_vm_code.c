@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <stdbool.h>
 #include "parse_vm_code.h"
 #include "parser_core.h"
 #include "write_instructions.h"
@@ -46,7 +46,7 @@ static void ProcessCode(file_ptr_t pathToSourceCode)
             {
                 PushLine(lineBuffer, &currentCharIndex);
                 break;
-            };
+            }
 
             case '/':
             {
@@ -138,6 +138,14 @@ void WriteMachineInstructions(output_struct_t* o, lines_t* instructionLines, cha
     //reading instructions of each line, one line at a time
 
     FILE* openFile = o->output;
+
+    static bool init = false;
+    if (!init)
+    {
+
+        SysInit(openFile);
+        init = true;
+    }
     for (int currentLine = 0, lineCount = instructionLines->lineCount; currentLine < lineCount; ++currentLine)
     {
 

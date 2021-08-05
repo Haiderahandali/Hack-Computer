@@ -3,20 +3,22 @@
 void PushConstant(int constantValue, FILE* openedFile)
 {
 
-    fprintf(openedFile, "@%d \n"
+    fprintf(openedFile, "//Push Constant %d\n"
+                        "@%d \n"
                         "D = A \n"
                         "@SP \n"
                         "A = M \n"
                         "M = D \n"
                         "@SP\n"
                         "M = M + 1\n",
-        constantValue);
+        constantValue, constantValue);
 }
 
 void Sub(FILE* openedFile)
 {
 
     fprintf(openedFile,
+        "//Sub\n"
         "@SP \n"
         "A = M - 1\n"
         "D = M\n"
@@ -30,7 +32,8 @@ void Sub(FILE* openedFile)
 void Add(FILE* openedFile)
 {
 
-    fprintf(openedFile, "@SP\n"
+    fprintf(openedFile, "//Add\n"
+                        "@SP\n"
                         "A = M - 1\n"
                         "D = M\n"
                         "@SP\n"
@@ -42,7 +45,8 @@ void Add(FILE* openedFile)
 void Neg(FILE* openedFile)
 {
 
-    fprintf(openedFile, "@SP\n"
+    fprintf(openedFile, "//Neg\n"
+                        "@SP\n"
                         "A = M -1 \n"
                         "M = -M\n");
 }
@@ -50,16 +54,16 @@ void Neg(FILE* openedFile)
 void Not(FILE* openedFile)
 {
 
-    fprintf(openedFile,
-        "@SP\n"
-        "A = M - 1\n"
-        "M = !M\n");
+    fprintf(openedFile, "//Not\n"
+                        "@SP\n"
+                        "A = M - 1\n"
+                        "M = !M\n");
 }
 
 void And(FILE* openedFile)
 {
     fprintf(openedFile,
-
+        "//And\n"
         "@SP\n"
         "A = M - 1\n"
         "D = M\n"
@@ -75,7 +79,7 @@ void Or(FILE* openedFile)
 {
 
     fprintf(openedFile,
-
+        "//OR\n"
         "@SP\n"
         "A = M - 1\n"
         "D = M\n"
@@ -92,7 +96,7 @@ void Equal(FILE* openedFile)
     static int i = 0;
 
     fprintf(openedFile,
-
+        "//Equal\n"
         "@SP\n"
         "A = M - 1\n"
         "D = M\n"
@@ -123,6 +127,7 @@ void LessThan(FILE* openedFile)
 {
     static int i = 0;
     fprintf(openedFile,
+        "//Less Than\n"
         "@SP\n"
         "A = M - 1\n"
         "D = M\n"
@@ -157,6 +162,7 @@ void GreaterThan(FILE* openedFile)
 {
     static int i = 0;
     fprintf(openedFile,
+        "//Greater Than \n"
         "@SP\n"
         "A = M - 1\n"
         "D = M;\n"
@@ -184,21 +190,8 @@ void GreaterThan(FILE* openedFile)
 
 void PushArgument(int ARG, FILE* openedFile)
 {
-    /*
-    @ARG 
-    D = A
-
-    @ARG 
-    A = M + D   
-    D = M 
-
-    @SP 
-    M = M + 1
-    A = M - 1
-    M = D
-    */
-
     fprintf(openedFile,
+        "// Push Arg %d\n"
         "@%d \n"
         "D = A\n"
 
@@ -210,6 +203,7 @@ void PushArgument(int ARG, FILE* openedFile)
         "M = M + 1\n"
         "A = M - 1\n"
         "M = D\n",
+        ARG,
         ARG);
 }
 void PushThat(int THAT, FILE* openedFile)
@@ -217,6 +211,7 @@ void PushThat(int THAT, FILE* openedFile)
     //same as PushArgment, except we load the THIS instead of ARG
 
     fprintf(openedFile,
+        "//Push That %d\n"
         "@%d \n"
         "D = A\n"
 
@@ -228,7 +223,7 @@ void PushThat(int THAT, FILE* openedFile)
         "M = M + 1\n"
         "A = M - 1\n"
         "M = D\n",
-        THAT);
+        THAT, THAT);
 }
 void PushLocal(int LCL, FILE* openedFile)
 {
@@ -236,6 +231,7 @@ void PushLocal(int LCL, FILE* openedFile)
     //same as PushArgment, except we load the LCL instead of ARG
 
     fprintf(openedFile,
+        "//Push Local %d\n"
         "@%d \n"
         "D = A\n"
 
@@ -247,13 +243,14 @@ void PushLocal(int LCL, FILE* openedFile)
         "M = M + 1\n"
         "A = M - 1\n"
         "M = D\n",
-        LCL);
+        LCL, LCL);
 }
 void PushThis(int THIS, FILE* openedFile)
 {
     //same as PushArgment, except we load the THIS instead of ARG
 
     fprintf(openedFile,
+        "//Push This %d\n"
         "@%d \n"
         "D = A\n"
 
@@ -265,18 +262,19 @@ void PushThis(int THIS, FILE* openedFile)
         "M = M + 1\n"
         "A = M - 1\n"
         "M = D\n",
-        THIS);
+        THIS, THIS);
 }
 void PushTemp(int TEMP, FILE* openedFile)
 {
     fprintf(openedFile,
+        "//Push Temp %d\n"
         "@R%d\n"
         "D = M \n"
         "@SP \n"
         "M = M + 1\n"
         "A = M - 1\n"
         "M = D\n",
-        5 + TEMP);
+        TEMP, 5 + TEMP);
 }
 void PushPointer(int pointerLocation, FILE* openedFile)
 {
@@ -284,6 +282,7 @@ void PushPointer(int pointerLocation, FILE* openedFile)
     if (pointerLocation == 1)
     {
         fprintf(openedFile,
+            "//Push Pointer THAT\n"
             "@THAT\n"
             " D = M\n"
             " @SP \n"
@@ -294,6 +293,7 @@ void PushPointer(int pointerLocation, FILE* openedFile)
     else if (pointerLocation == 0)
     {
         fprintf(openedFile,
+            "//Push Pointer THIS\n"
             "@THIS\n"
             " D = M\n"
             " @SP \n"
@@ -306,16 +306,6 @@ void PushPointer(int pointerLocation, FILE* openedFile)
         printf("Error, expected pointer to be 0 or 1...returning \n");
         return;
     }
-    /*
-    @THAT
-    D = M
-
-    @SP 
-    M = M + 1
-    A = M - 1
-
-    M = D
-    */
 }
 
 void PushStatic(int STATIC, FILE* openedFile, char* fileName)
@@ -328,6 +318,7 @@ void PushStatic(int STATIC, FILE* openedFile, char* fileName)
     else
     {
         fprintf(openedFile,
+            "//Push static %d\n"
             "@%s.%d\n"
             "D = M \n"
 
@@ -335,7 +326,7 @@ void PushStatic(int STATIC, FILE* openedFile, char* fileName)
             "M = M + 1\n"
             "A = M - 1\n"
             "M = D\n",
-            fileName, STATIC);
+            STATIC, fileName, STATIC);
     }
 }
 
@@ -350,20 +341,21 @@ void PopStatic(int STATIC, FILE* openedFile, char* fileName)
     {
 
         fprintf(openedFile,
+            "//Pop Static %d \n"
             "@SP \n"
             "M = M - 1\n"
             "A = M\n"
             "D = M\n"
 
-            "@%s.%u \n"
+            "@%s.%d \n"
             "M = D\n",
-            fileName, STATIC);
+            STATIC, fileName, STATIC);
     }
 }
 void PopTemp(int TEMP, FILE* openedFile)
 {
     fprintf(openedFile,
-
+        "//Pop Temp %d\n"
         "@SP\n"
         "M = M - 1\n"
         "A = M\n"
@@ -371,33 +363,13 @@ void PopTemp(int TEMP, FILE* openedFile)
 
         "@R%d\n"
         "M = D\n",
-        5 + TEMP);
+        TEMP, 5 + TEMP);
 }
 void PopArgument(int ARG, FILE* openedFile)
 {
-    /**
-     * 
-     * 
-     @ArgLoc
-     D = A
-     @ARG 
-     D = M + D
-    @R15
-    M = D
-    
-    @SP
-
-     M = M - 1
-     A = M
-
-     D = M 
-     @R15
-    A = M
-    M = D
-    
-    */
 
     fprintf(openedFile,
+        "//Pop Argument %d \n"
         "@%d\n"
         "D = A\n"
         "@ARG \n"
@@ -414,12 +386,13 @@ void PopArgument(int ARG, FILE* openedFile)
         "@R15\n"
         "A = M\n"
         "M = D\n",
-        ARG);
+        ARG, ARG);
 }
 void PopLocal(int LCL, FILE* openedFile)
 {
 
     fprintf(openedFile,
+        "//Pop Local %d \n"
         "@%d\n"
         "D = A\n"
         "@LCL \n"
@@ -436,11 +409,12 @@ void PopLocal(int LCL, FILE* openedFile)
         "@R15\n"
         "A = M\n"
         "M = D\n",
-        LCL);
+        LCL, LCL);
 }
 void PopThat(int THAT, FILE* openedFile)
 {
     fprintf(openedFile,
+        "//Pop That %d\n"
         "@%d\n"
         "D = A\n"
         "@THAT \n"
@@ -457,11 +431,12 @@ void PopThat(int THAT, FILE* openedFile)
         "@R15\n"
         "A = M\n"
         "M = D\n",
-        THAT);
+        THAT, THAT);
 }
 void PopThis(int THIS, FILE* openedFile)
 {
     fprintf(openedFile,
+        "//Pop This %d\n"
         "@%d\n"
         "D = A\n"
         "@THIS \n"
@@ -478,7 +453,7 @@ void PopThis(int THIS, FILE* openedFile)
         "@R15\n"
         "A = M\n"
         "M = D\n",
-        THIS);
+        THIS, THIS);
 }
 
 void PopPointer(int pointerLocation, FILE* openedFile)
@@ -486,7 +461,7 @@ void PopPointer(int pointerLocation, FILE* openedFile)
     if (pointerLocation == 1)
     {
         fprintf(openedFile,
-
+            "//Pop Pointer THAT\n"
             " @SP \n"
             " M = M - 1\n"
             " A = M\n"
@@ -498,7 +473,7 @@ void PopPointer(int pointerLocation, FILE* openedFile)
     else if (pointerLocation == 0)
     {
         fprintf(openedFile,
-
+            "//Pop Pointer THIS\n"
             " @SP \n"
             " M = M - 1\n"
             " A = M\n"
@@ -518,28 +493,23 @@ void PopPointer(int pointerLocation, FILE* openedFile)
 
 void WriteIfGoto(FILE* openedFile, char* label)
 {
-    /*
-    @SP
-    M = M - 1
-    A = M
-    D = M
-    @%s
-    D;JNE
-    */
+
     fprintf(openedFile,
+        "//Write If Goto %s\n"
         "@SP\n"
         "M = M - 1\n"
         "A = M\n"
         "D = M\n"
         "@%s\n"
         "D;JNE\n",
-        label);
+        label, label);
 }
 
 void ReturnFunc(FILE* openedFile)
 {
     PopArgument(0, openedFile);
     fprintf(openedFile,
+        "//Return Function\n"
         "@LCL\n"
         "D = M\n"
         "@R15 \n"
@@ -598,9 +568,10 @@ void ReturnFunc(FILE* openedFile)
 void WriteGoto(FILE* openedFile, char* label)
 {
     fprintf(openedFile,
+        "//Write goto %s\n"
         "@%s\n"
         "0;JMP\n",
-        label);
+        label, label);
 }
 
 void WriteLabel(FILE* openedFile, char* label)
@@ -614,7 +585,7 @@ void CallFunction(FILE* openedFile, char* functionName, int nArgs)
     static int i = 0; //the number of times a function is being called, help with recursiveness
 
     fprintf(openedFile,
-
+        "//Call function %s\n"
         "@%s$ret.%d\n // push @returnAddress\n"
         "D = A\n"
         "@SP \n"
@@ -671,7 +642,8 @@ void CallFunction(FILE* openedFile, char* functionName, int nArgs)
         "0;JMP\n"
 
         "(%s$ret.%d)\n",
-        functionName, i, nArgs, functionName, functionName, i
+        functionName, functionName,
+        i, nArgs, functionName, functionName, i
 
     );
     ++i;
@@ -683,17 +655,35 @@ void SetInfiniteLoop(FILE* openedFile)
                         "@END\n"
                         "0;JMP\n");
 }
-// void SysInit(FILE* openFile)
-// {
-//     // fprintf(openedFile, "%s\n", );
-// }
 void GenerateFunctionLable(FILE* openedFile, char* functionName, int nVars)
 {
-    fprintf(openedFile, "(%s)\n", functionName);
+    fprintf(openedFile,
+        "//Generate Function Label %s\n"
+        "(%s)\n",
+        functionName,
+        functionName);
 
     for (int i = 0; i < nVars; ++i)
     {
         PushConstant(0, openedFile);
         PopLocal(i, openedFile);
     }
+    fprintf(openedFile,
+        "@%d\n"
+        "D = A\n"
+        "@SP\n"
+        "M = M + D\n",
+        nVars);
+}
+
+void SysInit(FILE* openedFile)
+{
+    // fprintf(openedFile, "@261\n"
+    //                     "D = A\n"
+    //                     "@SP\n"
+    //                     "M = D\n"
+    //                     "@Sys.init\n"
+    //                     "0;JMP\n");
+    fprintf(openedFile, "@Sys.init\n"
+                        "0;JMP\n");
 }
