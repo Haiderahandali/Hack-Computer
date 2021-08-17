@@ -25,5 +25,7 @@ I chose to implement the software projects in the **C programming language**, si
 |chapter 11: Jack Compiler II|Extending the Jack compiler|Currently in progress using the C language|
 |chapter 12: Operating System|Building an Operating System for the Hack Computer (interacting with both, hardware and software) |Not implemented yet|
 
+### The book did provide a full suite of tools for testing purposes (the photo below is using the CPU Emulator to test the pong game application)
+
 ![The CPU executing Pong](assets/CPU_PONG_Image.jpg)
 
