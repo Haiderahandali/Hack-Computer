@@ -1,0 +1,11 @@
+class Main
+{
+	function void main()
+	{
+	var Rect rect;
+	let rect = Rect.new(75,75);
+	do rect.Run();	
+	do rect.dispose();
+	return;
+	}
+}

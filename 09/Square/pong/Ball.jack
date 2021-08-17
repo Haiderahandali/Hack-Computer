@@ -1,0 +1,33 @@
+class Ball
+{
+	
+	field int size;
+	field int speed;
+	field int x,y;
+
+	constructor Ball new (int Ax, int Ay)
+	{
+
+		let size = 5;
+		let x = Ax;
+		let y = Ay;
+		let speed = 20;
+		do Draw();
+		return this;
+	}
+
+	method void Draw()
+	{
+		do Screen.setColor(true);
+	   	do Screen.drawRectangle(x,y, x + size, y+size);
+
+		return;
+	}
+
+
+	method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+
+}

@@ -1,0 +1,42 @@
+class Rect
+{
+	
+	field int posX;
+	field int posY;
+	  constructor Rect new(int x, int y)
+	  {
+	  		let posX = x;
+	  		let posY = y;
+	  		do Draw();
+	  		return this;
+	  }
+
+
+	  method void Draw()
+	  {
+	   do Screen.setColor(true);
+	   do Screen.drawRectangle(posX,posY, posX+30, posY+30);
+
+	   return;
+	  }
+
+	  method void Run()
+	  {
+	  	var char key;  // the key currently pressed by the user
+      	var boolean exit;
+      	let exit = false;
+
+      	while(~exit)
+      	{
+			let key = Keyboard.keyPressed();
+			if (key = 81)  { let exit = true; }     // q key
+	    }
+		
+		return;
+	  }
+
+	  method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+}

@@ -1,0 +1,17 @@
+[
+{
+  "directory": "/Users/alia/dev/n2d/projects/10/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/cc  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk -mmacosx-version-min=10.15 -std=c11 -g -O0 -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wold-style-cast -Wpointer-arith -Wmissing-prototypes -Wno-missing-braces -Werror -Wno-deprecated -o CMakeFiles/compiler.dir/src/main.c.o -c /Users/alia/dev/n2d/projects/10/src/main.c",
+  "file": "/Users/alia/dev/n2d/projects/10/src/main.c"
+},
+{
+  "directory": "/Users/alia/dev/n2d/projects/10/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/cc  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk -mmacosx-version-min=10.15 -std=c11 -g -O0 -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wold-style-cast -Wpointer-arith -Wmissing-prototypes -Wno-missing-braces -Werror -Wno-deprecated -o CMakeFiles/compiler.dir/src/compile.c.o -c /Users/alia/dev/n2d/projects/10/src/compile.c",
+  "file": "/Users/alia/dev/n2d/projects/10/src/compile.c"
+},
+{
+  "directory": "/Users/alia/dev/n2d/projects/10/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/cc  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk -mmacosx-version-min=10.15 -std=c11 -g -O0 -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wold-style-cast -Wpointer-arith -Wmissing-prototypes -Wno-missing-braces -Werror -Wno-deprecated -o CMakeFiles/compiler.dir/src/scanner.c.o -c /Users/alia/dev/n2d/projects/10/src/scanner.c",
+  "file": "/Users/alia/dev/n2d/projects/10/src/scanner.c"
+}
+]
