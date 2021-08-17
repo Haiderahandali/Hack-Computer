@@ -25,5 +25,5 @@ I chose to implement the software projects in the **C programming language**, si
 |chapter 11: Jack Compiler II|Extending the Jack compiler|Currently in progress using the C language|
 |chapter 12: Operating System|Building an Operating System for the Hack Computer (interacting with both, hardware and software) |Not implemented yet|
 
-![The CPU executing Pong](assets/CPU_PONG_Image.jpg "The CPU Executing Pong")
+![The CPU executing Pong](assets/CPU_PONG_Image.jpg)
 
