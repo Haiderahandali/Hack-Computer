@@ -119,6 +119,17 @@ static void skipWhiteSpaces()
         }
     }
 }
+static TokenType checkKeyword(int start, int length, char const* rest, TokenType type)
+{
+    if (scanner.current - scanner.start == start + length // I should be more careful with operators precedence with this comparison
+        && memcmp(scanner.start + start, rest, (unsigned long)length /* be careful of casting to unsigned long*/) == 0)
+    {
+        return type;
+    }
+
+    return TOKEN_IDENTIFIER;
+}
+
 static Token string()
 {
     while (peek() != '"' && !isAtEnd())
@@ -142,6 +153,88 @@ static bool isAlpha(char c)
 }
 static TokenType identifierType()
 {
+    switch (scanner.start[0])
+    {
+        //----- unbranched keywords ----------//
+        case 'b': return checkKeyword(1, 6, "oolean", TOKEN_BOOLEAN);
+        case 'd': return checkKeyword(1, 1, "o", TOKEN_DO);
+        case 'e': return checkKeyword(1, 3, "lse", TOKEN_ELSE);
+        case 'l': return checkKeyword(1, 2, "et", TOKEN_LET);
+        case 'm': return checkKeyword(1, 5, "ethod", TOKEN_METHOD);
+        case 'n': return checkKeyword(1, 3, "ull", TOKEN_NULL);
+        case 'r': return checkKeyword(1, 5, "eturn", TOKEN_RETURN);
+        case 's': return checkKeyword(1, 6, "tatic", TOKEN_STATIC);
+        case 'w': return checkKeyword(1, 4, "hile", TOKEN_WHILE);
+
+        //----- unbranched keywords ----------//
+        case 'c':
+        {
+            if (scanner.current - scanner.start > 1)
+
+            {
+
+                switch (scanner.start[1])
+                {
+                    case 'h': return checkKeyword(2, 2, "ar", TOKEN_CHAR);
+                    case 'l': return checkKeyword(2, 3, "ass", TOKEN_CLASS);
+                    case 'o': return checkKeyword(2, 9, "nstructor", TOKEN_CONSTRUCTOR);
+                }
+            }
+            break;
+        }
+
+        case 'f':
+        {
+            if (scanner.current - scanner.start > 1)
+            {
+                switch (scanner.start[1])
+                {
+                    case 'a': return checkKeyword(2, 3, "lse", TOKEN_FALSE);
+                    case 'i': return checkKeyword(2, 4, "eld", TOKEN_FIELD);
+                    case 'u': return checkKeyword(2, 5, "nction", TOKEN_FUNCTION);
+                }
+            }
+            break;
+        }
+
+        case 'i':
+        {
+            if (scanner.current - scanner.start > 1)
+            {
+                switch (scanner.start[1])
+                {
+                    case 'f': return checkKeyword(2, 0, "", TOKEN_IF);
+                    case 'n': return checkKeyword(2, 1, "t", TOKEN_INT);
+                }
+            }
+            break;
+        }
+        case 't':
+        {
+            if (scanner.current - scanner.start > 1)
+            {
+                switch (scanner.start[1])
+                {
+                    case 'h': return checkKeyword(2, 2, "is", TOKEN_THIS);
+                    case 'r': return checkKeyword(2, 2, "re", TOKEN_TRUE);
+                }
+            }
+            break;
+        }
+        case 'v':
+        {
+            if (scanner.current - scanner.start > 1)
+            {
+                switch (scanner.start[1])
+                {
+                    case 'a': return checkKeyword(2, 1, "r", TOKEN_VAR);
+                    case 'o': return checkKeyword(2, 2, "id", TOKEN_VOID);
+                }
+            }
+            break;
+        }
+    }
+
     return TOKEN_IDENTIFIER;
 }
 static Token identifier()
@@ -173,6 +266,9 @@ Token scanToken()
         case ')': return makeToken(TOKEN_RIGHT_PAREN);
         case '{': return makeToken(TOKEN_LEFT_BRACE);
         case '}': return makeToken(TOKEN_RIGHT_BRACE);
+        case '[': return makeToken(TOKEN_LEFT_BRACKET);
+        case ']': return makeToken(TOKEN_RIGHT_BRACKET);
+
         case ',': return makeToken(TOKEN_COMMA);
         case ';': return makeToken(TOKEN_SEMICOLON);
 
@@ -180,11 +276,15 @@ Token scanToken()
         case '-': return makeToken(TOKEN_MINUS);
         case '/': return makeToken(TOKEN_SLASH);
         case '*': return makeToken(TOKEN_STAR);
-        case '.':
-            return makeToken(TOKEN_DOT);
+        case '.': return makeToken(TOKEN_DOT);
 
-            //------- two characters tokens -------------//
-
+        //------- two characters tokens -------------//
+        case '&':
+            return makeToken(
+                match('&') ? TOKEN_AND_LOGICAL : TOKEN_AND);
+        case '|':
+            return makeToken(
+                match('|') ? TOKEN_OR_LOGICAL : TOKEN_OR);
         case '!':
             return makeToken(
                 match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);

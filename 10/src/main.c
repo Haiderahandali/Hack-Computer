@@ -31,7 +31,7 @@ static char* readFile(char const* path)
 static void runFile(char const* path)
 {
     char* source = readFile(path);
-    printf("%s\n", source);
+    //printf("%s\n", source);
     compile(source);
 
     free(source);
@@ -39,6 +39,7 @@ static void runFile(char const* path)
 
 int main(int argc, char** argv)
 {
+    // Note: add support for argc == 1 (REPL CASE) when possible
     if (argc != 2)
     {
         printf("Usage: compiler path_to_source_code\nsupply one command line argument which is the source code file path\n");
